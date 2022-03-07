@@ -36,15 +36,14 @@ type ClientProxyService struct {
 	name string
 }
 
-func NewLoginClient(cli client.App, name string) *ClientProxyService {
+var ClientProxyIsNil = errors.New("proxy is nil")
+
+func NewGreeterClient(cli client.App, name string) *ClientProxyService {
 	return &ClientProxyService{
 		cli:  cli,
 		name: name,
 	}
 }
-
-var ClientProxyIsNil = errors.New("proxy is nil")
-
 func (proxy *ClientProxyService) Hello(req *greeter.Request) (rsp *Response, err error) {
 	if proxy == nil {
 		return nil, ClientProxyIsNil

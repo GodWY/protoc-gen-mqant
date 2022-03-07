@@ -13,10 +13,10 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/GodWY/protoc-gen-mqant/internal_genhi"
 	"os"
 	"path/filepath"
 
-	gengo "github.com/GodWY/protoc-gen-mqant/cmd/protoc-gen-mqant/internal_genhi"
 	"github.com/GodWY/protoc-gen-mqant/internal/version"
 	"google.golang.org/protobuf/compiler/protogen"
 )
@@ -48,10 +48,10 @@ func main() {
 		}
 		for _, f := range gen.Files {
 			if f.Generate {
-				gengo.GenerateFile(gen, f)
+				internal_genhi.GenerateFile(gen, f)
 			}
 		}
-		gen.SupportedFeatures = gengo.SupportedFeatures
+		gen.SupportedFeatures = internal_genhi.SupportedFeatures
 		return nil
 	})
 }
