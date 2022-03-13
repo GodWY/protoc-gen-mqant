@@ -15,19 +15,20 @@ import (
 	client "github.com/liangdas/mqant/module"
 	mqrpc "github.com/liangdas/mqant/rpc"
 	"golang.org/x/net/context"
+	"github.com/liangdas/mqant/gate"
 )
 
 // generated mqant method
 type Greeter interface {
-	//  @GET@gin.Logger()
-	Hello(in *greeter.Request) (out *Response, err error)
+	//  @gateway
+	Hello(session gate.Session, in *greeter.Request) (out *Response, err error)
 	//  @POST
 	Stream(in *greeter.Request) (out *Response, err error)
 }
 
-func RegisterGreeterTcpHandler(m *basemodule.BaseModule, ser Greeter) {
-	m.GetServer().RegisterGO("hello", ser.Hello)
-	m.GetServer().RegisterGO("stream", ser.Stream)
+func RegisterGreeterRpcHandler(m *basemodule.BaseModule, ser Greeter) {
+	m.GetServer().RegisterGO("Hello", ser.Hello)
+	m.GetServer().RegisterGO("Stream", ser.Stream)
 }
 
 // generated proxxy handle
@@ -50,7 +51,7 @@ func (proxy *ClientProxyService) Hello(req *greeter.Request) (rsp *Response, err
 	}
 	rsp = &Response{}
 	err = mqrpc.Proto(rsp, func() (reply interface{}, err interface{}) {
-		return proxy.cli.Call(context.TODO(), proxy.name, "hello", mqrpc.Param(req))
+		return proxy.cli.Call(context.TODO(), proxy.name, "Hello", mqrpc.Param(req))
 	})
 	return rsp, err
 }
@@ -60,7 +61,7 @@ func (proxy *ClientProxyService) Stream(req *greeter.Request) (rsp *Response, er
 	}
 	rsp = &Response{}
 	err = mqrpc.Proto(rsp, func() (reply interface{}, err interface{}) {
-		return proxy.cli.Call(context.TODO(), proxy.name, "stream", mqrpc.Param(req))
+		return proxy.cli.Call(context.TODO(), proxy.name, "Stream", mqrpc.Param(req))
 	})
 	return rsp, err
 }

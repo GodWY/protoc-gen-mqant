@@ -924,19 +924,41 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 	g.P(`mqrpc "github.com/liangdas/mqant/rpc"`)
 	g.P(`"golang.org/x/net/context"`)
 
-	g.P(")")
+	var flag bool
+	for _, service := range file.Services {
+		for _, value := range service.Methods {
+			a := string(value.Comments.Leading)
+			if strings.Contains(a, "@gateway") {
+				flag = true
 
+			}
+		}
+	}
+	if flag {
+		g.P(`"github.com/liangdas/mqant/gate"`)
+	}
+	g.P(")")
 	// 注册rpc接口
 	for _, service := range file.Services {
+
 		g.P("// generated mqant method")
 		g.P("type ", service.GoName, " interface {")
 		for _, value := range service.Methods {
 			a := string(value.Comments.Leading)
-			a = strings.Trim(a, "\r\n")
-			if a != "" {
-				g.P("// ", a)
+			if strings.Contains(a, "@gateway") {
+				a = strings.Trim(a, "\r\n")
+				if a != "" {
+					g.P("// ", a)
+				}
+
+				g.P(value.GoName, "(session gate.Session , in ", "*", value.Input.GoIdent, ")", "(out *", value.Output.GoIdent, ", err error", ")")
+			} else {
+				a = strings.Trim(a, "\r\n")
+				if a != "" {
+					g.P("// ", a)
+				}
+				g.P(value.GoName, "(in ", "*", value.Input.GoIdent, ")", "(out *", value.Output.GoIdent, ", err error", ")")
 			}
-			g.P(value.GoName, "(in ", "*", value.Input.GoIdent, ")", "(out *", value.Output.GoIdent, ", err error", ")")
 		}
 		g.P("}")
 		g.P()
@@ -951,8 +973,9 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 		// 	 m.GetServer().RegisterGO("{{$key}}", ser.{{$value}})
 		// 	{{- end}}
 		// 	}
+
 		g.P()
-		g.P("func Register", service.GoName, "TcpHandler(m *basemodule.BaseModule, ser ", service.GoName, ") {")
+		g.P("func Register", service.GoName, "RpcHandler(m *basemodule.BaseModule, ser ", service.GoName, ") {")
 		genService(gen, file, g, service, omitempty)
 		g.P(" }")
 	}
@@ -1207,5 +1230,5 @@ func parserComment(comment []string) string {
 // hasRuleRpc 生成rpc协议规则
 func hasRuleRpc(topic string) string {
 	// 协议格式定为
-	return strings.ToLower(topic)
+	return topic
 }
