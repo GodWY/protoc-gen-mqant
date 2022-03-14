@@ -1230,5 +1230,5 @@ func parserComment(comment []string) string {
 // hasRuleRpc 生成rpc协议规则
 func hasRuleRpc(topic string) string {
 	// 协议格式定为
-	return topic
+	return "/" + topic
 }
