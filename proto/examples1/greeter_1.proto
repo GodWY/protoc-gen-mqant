@@ -17,3 +17,11 @@ service Greeter {
 	}
 }
 
+
+service Greeter2 {
+	// @gateway
+	rpc Hello1(examples.Request) returns (Response) {}
+	// @POST
+	rpc Stream1(examples.Request) returns ( Response) {
+	}
+}
